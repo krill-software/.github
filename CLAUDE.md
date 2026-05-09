@@ -78,6 +78,12 @@ If you find yourself wanting a sixth color, **stop and ask the user.** Adding to
 
 If you find an off-palette color in existing code (including older krill apps), treat it as a bug, not a precedent. Surface it before fixing — there may be context for why it was added.
 
+### Two narrow exceptions
+
+**Domain-essential colors.** If your app genuinely needs colors the palette can't represent — syntax-highlighting categories, status colors on a dashboard, file-type indicators — declare them as app-specific named tokens (e.g. `--hl-keyword`) in the app's local `styles.css` with a comment explaining the reason. The chrome stays palette-strict; only the domain content uses these tokens. When a second krill app needs the same kind of colors, hoist the tokens into [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui) so all apps using that concept share the same set.
+
+**The palette is for UI, not output.** The five locked colors govern what's painted on the running app's screen. They do *not* govern what the app *produces*: print stylesheets (`@media print`), exported PDFs, rendered or generated images, or content the app is displaying (a PDF's own page color, an image's pixels). Output follows whatever conventions make the output good — white paper, white page background, accurate content reproduction.
+
 ## Release flow
 
 For an existing app, when the user asks to release a new version:
