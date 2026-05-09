@@ -91,6 +91,69 @@ The fonts in `markdown-editor/src/assets/fonts/` are the source of truth — cop
 
 Body chrome size: 13px. Status line: 11px. Section headers: 10.5px uppercase, 0.08em letterspacing.
 
+## Body layout (opinionated, all apps)
+
+Every krill app uses the same 3-row body shape. The package
+[`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui) builds it for you via `mountChrome()` — apps don't recreate it.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ [☰] File Edit View …       •photo.jpg        [_] [□] [✕]         │  titlebar (32px)
+├──────────────────────────────────────────────────────────────────┤
+│              │                                                   │
+│   AUX        │       MAIN                                        │
+│   (left,     │       (right, primary work view)                  │
+│   tools/nav) │                                                   │
+│              │                                                   │
+├──────────────────────────────────────────────────────────────────┤
+│ status-info (file identity)         status-state (position/mode) │  status line (24px)
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Titlebar
+
+- Menus on the left (`File`, `Edit`, `Image`, `Filter`, `View`, `Go`, `Help` — only those with registered actions render).
+- **Filename centered on the *full* titlebar** (not on the middle flex slot — `position: absolute` on `#titlebar`). Empty when no file is open.
+- Dirty marker is a `•` accent prefix on the filename, driven by `body[data-dirty="true"]`. Apps set the body data attribute; the package owns the prefix CSS.
+- Window controls (min / max / close) on the right.
+
+### Body — main + optional aux
+
+- **AUX (left, 260px fixed)**: tools, navigation, settings, output panels. Created by `mountChrome({ showAuxPane: true })`.
+- **MAIN (right, flex)**: the primary work view — canvas, page reader, color wheel, editor.
+- Apps without an aux pane (image-viewer, markdown-editor) collapse to a single column.
+- rss-reader is a granted exception (3-pane: feeds / items / body inside main).
+
+### Status line
+
+- **LEFT (`#status-info`)** — file identity. Type, size, structural dimensions. Doesn't change as the user works.
+- **RIGHT (`#status-state`)** — position / state. Page X/Y, word count, zoom %, mode. Changes constantly.
+- Pixel size is *file identity* (left). Word count and page position are *state* (right) — they're different categories.
+
+### Empty + error placeholders
+
+When no file is open, every file-app shows a centered "drop a file here, or press `Ctrl+O`" hint. Identical styling across apps — built via `buildEmptyState({ primary, hint })` from desktop-ui:
+
+```ts
+import { buildEmptyState, buildErrorState } from "@krill-software/desktop-ui";
+
+const empty = buildEmptyState({
+  primary: "No document open.",
+  hint: 'Drop a PDF here, or press <kbd>Ctrl</kbd>+<kbd>O</kbd>.',
+});
+chrome.viewport.appendChild(empty);
+
+const error = buildErrorState({ primary: "Can't open this PDF." });
+chrome.viewport.appendChild(error.element);
+// later: error.setFilename("broken.pdf");
+```
+
+The placeholder is positioned `absolute` over the working viewport, centered both axes, in `--fm-muted` text. App copy varies (PDF vs image vs document) but the shape is fixed.
+
+### Fullscreen
+
+Hides everything except `#viewport` (and any sub-panes inside it that aren't separately hidden). Driven by `body[data-fullscreen="true"]` — package-owned CSS.
+
 ## Iconography
 
 Every app ships a single icon in the same shape language so a row of krill apps in a launcher reads as a set, not as five unrelated installs.
