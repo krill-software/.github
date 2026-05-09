@@ -7,22 +7,27 @@ Before scaffolding a new app or making non-trivial changes to an existing one, r
 - [PHILOSOPHY.md](PHILOSOPHY.md) — what krill apps are and aren't. Read first.
 - [STYLE.md](STYLE.md) — engineering and visual conventions every app shares.
 
-The most complete reference template is [image-editor](image-editor/) — Tauri shell, custom titlebar, palette wired up, GitHub Actions release workflow, GitHub Pages landing page, publish script, all in place. When in doubt, copy from there.
+The most complete reference template is [document-viewer](https://github.com/krill-software/document-viewer) — Tauri shell, custom titlebar via [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui), palette wired up via the same package, reusable release workflow from [krill-software/.github](https://github.com/krill-software/.github), publish script, all in place. When in doubt, copy from there.
+
+Two shared repos that every app depends on:
+
+- **[`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui)** (git dep, pinned to a tag) — palette CSS bundle + `mountChrome()` (titlebar / menu / status line). Apps import this and don't redeclare any of it locally.
+- **[krill-software/.github](https://github.com/krill-software/.github)** — reusable `krill-app-release.yml` workflow. Each app's local `.github/workflows/release.yml` is a 13-line caller that hands off to it.
 
 ## When the user asks for a new krill app
 
 1. **Frame it in one sentence.** "Edits markdown files." "Crops and exports raster images." If the purpose can't be said in a sentence, push back before writing code.
 2. **Confirm the *design* fits krill's** — calm, familiar, no power-user configurability. The app's *domain* (RSS, music, scratchpad notes, whatever) is fair game even if it's not typically a Win/Mac switcher request; the brand is in how it looks and feels, not in the category. If the user describes something Inkscape-shaped or GIMP-shaped, surface the mismatch — that's a design problem, not a domain one.
 3. **Draft `SPEC.md` first** — mirror the existing apps' SPECs (goals, non-goals, stack, model, layout, file format, milestones).
-4. **Scaffold by mirroring image-editor's tree** — same configs, same titlebar HTML, same CSS palette tokens, same Rust state-persistence scaffolding.
+4. **Scaffold by mirroring document-viewer's tree** — same configs, same Rust state-persistence scaffolding, same minimal `index.html`. Add `@krill-software/desktop-ui` as a git dep; the chrome (titlebar + menu bar + status line + palette) comes from there. The reusable release workflow is referenced from `krill-software/.github`.
 5. **Implement M1**, stop, and let the user steer the next milestone.
 
 ## Binding without checking
 
 Treat these as decided. Don't relitigate them per app.
 
-- The locked palette and CSS variable names (see STYLE.md).
-- Custom titlebar with min / max / close + inline menu bar; native decorations off.
+- The locked palette and CSS variable names (see STYLE.md). Provided by `@krill-software/desktop-ui` — apps don't redeclare these locally.
+- Custom titlebar with min / max / close + inline menu bar; native decorations off. Built by `mountChrome()` from the desktop-ui package.
 - Tauri 2 + TypeScript + Vite + pnpm + Rust 1.77+.
 - Linux x86_64 only. AppImage + `.deb`. No Flatpak, no Snap, no Windows / macOS code paths.
 - MIT license.

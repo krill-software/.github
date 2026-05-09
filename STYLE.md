@@ -53,7 +53,7 @@ Single locked light palette. **No dark mode**, no system-following, no user them
 | Shimmering Blush | `#DD7596` | Accent — cursor, selection, dirty marker, focus borders     |
 | Brilliant Rose   | `#FF82BF` | Strong accent — hover state, primary CTAs                   |
 
-CSS variable names every app uses (so styles can be lifted between apps without renaming):
+CSS variable names every app uses, exposed via [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui) — apps don't redeclare these locally; they `import "@krill-software/desktop-ui/styles"` and inherit:
 
 ```css
 :root {
@@ -66,6 +66,8 @@ CSS variable names every app uses (so styles can be lifted between apps without 
   --fm-rule-strong: rgba(48, 52, 63, 0.16);
 }
 ```
+
+The app's local `styles.css` should only carry app-specific tokens (font-family stacks, layout dimensions like `--rail-w`). Redeclaring the palette tokens locally is a smell — it means the app drifted from the package, not that the package is wrong.
 
 ## Typography
 
