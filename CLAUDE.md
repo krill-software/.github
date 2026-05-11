@@ -9,9 +9,10 @@ Before scaffolding a new app or making non-trivial changes to an existing one, r
 
 The most complete reference template is [document-viewer](https://github.com/krill-software/document-viewer) — Tauri shell, custom titlebar via [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui), palette wired up via the same package, reusable release workflow from [krill-software/.github](https://github.com/krill-software/.github), publish script, all in place. When in doubt, copy from there.
 
-Two shared repos that every app depends on:
+Three shared repos that every app depends on:
 
-- **[`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui)** (git dep, pinned to a tag) — palette CSS bundle + `mountChrome()` (titlebar / menu / status line). Apps import this and don't redeclare any of it locally.
+- **[`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui)** (npm-style git dep, pinned to a tag) — TypeScript: palette CSS bundle, `mountChrome()` (titlebar / menu / status line / aux pane), `buildEmptyState()` / `buildErrorState()` / `showBootError()` helpers, canonical action registry. Apps import this and don't redeclare any of the chrome locally.
+- **[`krill-desktop-core`](https://github.com/krill-software/desktop-core)** (Cargo git dep, pinned to a tag) — Rust: `state` module (XDG dir / load+save JSON / `WindowGeometry`), `fs` module (`read_bytes` / `absolute_path` / `format_io_err`), `dev` module (`test_file`). Each app's `src-tauri/src/lib.rs` declares the Tauri commands (the macro needs concrete symbols) but their bodies are one-liners delegating here.
 - **[krill-software/.github](https://github.com/krill-software/.github)** — reusable `krill-app-release.yml` workflow. Each app's local `.github/workflows/release.yml` is a 13-line caller that hands off to it.
 
 ## When the user asks for a new krill app
@@ -19,7 +20,7 @@ Two shared repos that every app depends on:
 1. **Frame it in one sentence.** "Edits markdown files." "Crops and exports raster images." If the purpose can't be said in a sentence, push back before writing code.
 2. **Confirm the *design* fits krill's** — calm, familiar, no power-user configurability. The app's *domain* (RSS, music, scratchpad notes, whatever) is fair game even if it's not typically a Win/Mac switcher request; the brand is in how it looks and feels, not in the category. If the user describes something Inkscape-shaped or GIMP-shaped, surface the mismatch — that's a design problem, not a domain one.
 3. **Draft `SPEC.md` first** — mirror the existing apps' SPECs (goals, non-goals, stack, model, layout, file format, milestones).
-4. **Scaffold by mirroring document-viewer's tree** — same configs, same Rust state-persistence scaffolding, same minimal `index.html`. Add `@krill-software/desktop-ui` as a git dep; the chrome (titlebar + menu bar + status line + palette) comes from there. The reusable release workflow is referenced from `krill-software/.github`.
+4. **Scaffold by mirroring document-viewer's tree** — same configs, same minimal `index.html`. Add `@krill-software/desktop-ui` as a frontend git dep (chrome / palette / actions / empty state come from there). Add `krill-desktop-core` as a Cargo git dep (state I/O, file helpers, dev fixture probe come from there). The reusable release workflow is referenced from `krill-software/.github`. Three deps, no copy-paste boilerplate.
 5. **Implement M1**, stop, and let the user steer the next milestone.
 
 ## Binding without checking
@@ -28,6 +29,7 @@ Treat these as decided. Don't relitigate them per app.
 
 - The locked palette and CSS variable names (see STYLE.md). Provided by `@krill-software/desktop-ui` — apps don't redeclare these locally.
 - Custom titlebar with min / max / close + inline menu bar; native decorations off. Built by `mountChrome()` from the desktop-ui package.
+- Rust-side state I/O (XDG state dir, JSON load/save, `WindowGeometry`, dev test-file probe, path canonicalization, IO error formatting). Provided by `krill-desktop-core` — apps don't reimplement any of it.
 - Tauri 2 + TypeScript + Vite + pnpm + Rust 1.77+.
 - Linux x86_64 only. AppImage + `.deb`. No Flatpak, no Snap, no Windows / macOS code paths.
 - MIT license.
