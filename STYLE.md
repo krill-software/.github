@@ -89,7 +89,25 @@ Every krill app bundles the same three webfonts so the look is identical across 
 
 The fonts in `markdown-editor/src/assets/fonts/` are the source of truth — copy from there when scaffolding a new app. Don't introduce a fourth family or rename the variables.
 
-Body chrome size: 13px. Status line: 11px. Section headers: 10.5px uppercase, 0.08em letterspacing.
+Body chrome size: 13px. Status line: 11px. Section headers: 11px uppercase, 0.08em letterspacing.
+
+### Always pick whole-pixel font sizes
+
+Use integer pixel sizes — `11px`, `13px`, `14px` — never `10.5px` or `12.5px`. Half-pixel sizes force WebKit on Linux into subpixel hinting, which produces visibly fuzzy / grainy text edges, especially on light backgrounds. The fix is whole pixels, not more font-smoothing CSS.
+
+Also include these four declarations on `html, body` so text renders the same way across apps:
+
+```css
+html, body {
+  font-family: var(--fm-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "calt" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+}
+```
+
+If text looks "off" but no obvious bug stands out — check for `.5px` sizes and the smoothing block first.
 
 ## Body layout (opinionated, all apps)
 
