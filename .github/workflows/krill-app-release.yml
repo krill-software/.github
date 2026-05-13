@@ -4,8 +4,8 @@ name: Krill app release (reusable)
 #
 # Tagged with `v*` in any consumer repo, the consumer's local workflow calls
 # this one and passes a couple of display strings; everything else (Linux
-# system deps, Rust toolchain, pnpm setup, tauri-action, draft release body)
-# is fixed here so all krill apps stay in sync.
+# system deps, Rust toolchain, pnpm setup, tauri-action, draft release body,
+# updater manifest) is fixed here so all krill apps stay in sync.
 #
 # Usage from a consumer app:
 #
@@ -21,8 +21,13 @@ name: Krill app release (reusable)
 #       with:
 #         product-name: "Document Viewer"
 #         example-file: "paper.pdf"
+#       secrets: inherit
 #       permissions:
 #         contents: write
+#
+# `secrets: inherit` forwards the org-level signing secrets
+# (TAURI_SIGNING_PRIVATE_KEY + TAURI_SIGNING_PRIVATE_KEY_PASSWORD) used to
+# sign AppImages for the in-app updater.
 
 on:
   workflow_call:
@@ -35,6 +40,13 @@ on:
         required: true
         type: string
         description: "Example file path used in install instructions (e.g. 'paper.pdf')."
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY:
+        required: false
+        description: "Minisign private key for updater artifact signing. Inherited from org secrets."
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD:
+        required: false
+        description: "Password for the minisign private key. Inherited from org secrets."
 
 jobs:
   release:
@@ -80,9 +92,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build & upload release
+        id: tauri
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "${{ inputs.product-name }} ${{ github.ref_name }}"
@@ -91,13 +106,19 @@ jobs:
           releaseBody: |
             ## Install
 
-            **Debian / Ubuntu** — registers the app as a candidate "Open with…" handler:
+            **One-shot installer** (apt-managed, survives upgrades):
 
             ```sh
-            sudo dpkg -i "${{ inputs.product-name }}"_*_amd64.deb
+            curl -fsSL https://raw.githubusercontent.com/krill-software/.github/main/install.sh | sh -s ${{ github.event.repository.name }}
             ```
 
-            **AppImage** — portable, any Linux x86_64:
+            **Manual .deb** — registers the app as a candidate "Open with…" handler:
+
+            ```sh
+            sudo apt install ./"${{ inputs.product-name }}"_*_amd64.deb
+            ```
+
+            **AppImage** — portable, self-updating via Help → Check for updates…:
 
             ```sh
             chmod +x "${{ inputs.product-name }}"_*.AppImage
@@ -109,3 +130,49 @@ jobs:
             ---
 
             *Built by the shared [krill-app-release](https://github.com/krill-software/.github/blob/main/.github/workflows/krill-app-release.yml) workflow.*
+
+      - name: Build updater manifest
+        # Always runs; if no .sig was produced (signing key not set) the
+        # script exits cleanly without uploading anything.
+        env:
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          # tauri-action writes artifacts into the standard Tauri output
+          # tree. Find the AppImage and its .sig sibling.
+          APPIMAGE=$(find src-tauri/target -type f -name '*.AppImage' | head -n1)
+          SIG="${APPIMAGE}.sig"
+          if [[ -z "$APPIMAGE" || ! -f "$SIG" ]]; then
+            echo "No signed AppImage produced — skipping updater manifest." >&2
+            echo "  AppImage: ${APPIMAGE:-<none>}" >&2
+            echo "  Sig:      $SIG" >&2
+            exit 0
+          fi
+
+          VERSION="${TAG#v}"
+          ASSET_NAME=$(basename "$APPIMAGE")
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/${ASSET_NAME}"
+          SIGNATURE=$(cat "$SIG")
+          PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          cat > latest.json <<EOF
+          {
+            "version": "${VERSION}",
+            "notes": "See https://github.com/${REPO}/releases/tag/${TAG}",
+            "pub_date": "${PUB_DATE}",
+            "platforms": {
+              "linux-x86_64": {
+                "signature": "${SIGNATURE}",
+                "url": "${DOWNLOAD_URL}"
+              }
+            }
+          }
+          EOF
+
+          echo "==> Uploading latest.json to release ${TAG}"
+          gh release upload "${TAG}" latest.json --repo "${REPO}" --clobber
