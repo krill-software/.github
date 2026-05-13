@@ -131,43 +131,47 @@ jobs:
 
             *Built by the shared [krill-app-release](https://github.com/krill-software/.github/blob/main/.github/workflows/krill-app-release.yml) workflow.*
 
-      - name: Publish updater manifest
-        # tauri-action's native latest.json upload is flaky on Linux
-        # (productName-with-spaces vs slug mismatch). Build it ourselves
-        # from the signed AppImage and its .sig sibling. If no sig was
-        # produced (signing key missing), exit cleanly.
+      - name: Sign AppImage and publish updater manifest
+        # tauri-action deletes the .sig files after uploading the
+        # AppImage, so we can't read them here. Re-sign the surviving
+        # AppImage ourselves with `tauri signer sign`, then build and
+        # upload latest.json. Skipped cleanly if the signing key is
+        # absent (e.g. forked repo).
         env:
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
 
-          echo "==> Listing bundle dir"
-          ls -la src-tauri/target/release/bundle/ 2>&1 || echo "no bundle/"
-          ls -la src-tauri/target/release/bundle/appimage/ 2>&1 || echo "no appimage/"
-          echo
-          echo "==> All .sig files under src-tauri/target"
-          find src-tauri/target -type f -name '*.sig' 2>&1 || true
-          echo
-
-          # Pick the AppImage signature (not the .tar.gz.sig). Strip any
-          # leading "./" from find's output.
-          APPIMAGE_SIG=$(find src-tauri/target -type f -name '*.AppImage.sig' -not -name '*.tar.gz.sig' -print0 | head -z -n1 | tr -d '\0')
-          echo "==> AppImage sig: '$APPIMAGE_SIG'"
-          if [[ -z "$APPIMAGE_SIG" || ! -f "$APPIMAGE_SIG" ]]; then
-            echo "No AppImage signature found — signing key likely missing. Skipping." >&2
+          if [[ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]]; then
+            echo "TAURI_SIGNING_PRIVATE_KEY is empty — skipping updater manifest." >&2
             exit 0
           fi
 
-          APPIMAGE_PATH="${APPIMAGE_SIG%.sig}"
-          ASSET_NAME=$(basename "$APPIMAGE_PATH")
-          VERSION="${TAG#v}"
-          # The release asset's filename has spaces replaced with dots by GitHub.
+          APPIMAGE=$(find src-tauri/target/release/bundle/appimage -maxdepth 1 -type f -name '*.AppImage' | head -n1)
+          if [[ -z "$APPIMAGE" || ! -f "$APPIMAGE" ]]; then
+            echo "No AppImage found in bundle/appimage/." >&2
+            exit 1
+          fi
+          echo "==> AppImage: $APPIMAGE"
+
+          echo "==> Signing"
+          pnpm tauri signer sign --password "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$APPIMAGE"
+          SIG_FILE="${APPIMAGE}.sig"
+          if [[ ! -f "$SIG_FILE" ]]; then
+            echo "Signing did not produce ${SIG_FILE}" >&2
+            exit 1
+          fi
+
+          ASSET_NAME=$(basename "$APPIMAGE")
           ASSET_URL_NAME=$(echo "$ASSET_NAME" | sed 's/ /./g')
+          VERSION="${TAG#v}"
           DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/${ASSET_URL_NAME}"
-          SIGNATURE=$(cat "$APPIMAGE_SIG")
+          SIGNATURE=$(cat "$SIG_FILE")
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
           jq -n \
