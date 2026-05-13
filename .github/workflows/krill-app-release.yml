@@ -144,10 +144,18 @@ jobs:
         run: |
           set -euo pipefail
 
-          # The AppImage tauri-action uploads to the release uses the
-          # productName-formatted filename. Find its signature locally.
-          APPIMAGE_SIG=$(find src-tauri/target -type f -name '*.AppImage.sig' \
-            ! -name '*.tar.gz.sig' | head -n1)
+          echo "==> Listing bundle dir"
+          ls -la src-tauri/target/release/bundle/ 2>&1 || echo "no bundle/"
+          ls -la src-tauri/target/release/bundle/appimage/ 2>&1 || echo "no appimage/"
+          echo
+          echo "==> All .sig files under src-tauri/target"
+          find src-tauri/target -type f -name '*.sig' 2>&1 || true
+          echo
+
+          # Pick the AppImage signature (not the .tar.gz.sig). Strip any
+          # leading "./" from find's output.
+          APPIMAGE_SIG=$(find src-tauri/target -type f -name '*.AppImage.sig' -not -name '*.tar.gz.sig' -print0 | head -z -n1 | tr -d '\0')
+          echo "==> AppImage sig: '$APPIMAGE_SIG'"
           if [[ -z "$APPIMAGE_SIG" || ! -f "$APPIMAGE_SIG" ]]; then
             echo "No AppImage signature found — signing key likely missing. Skipping." >&2
             exit 0
@@ -156,7 +164,9 @@ jobs:
           APPIMAGE_PATH="${APPIMAGE_SIG%.sig}"
           ASSET_NAME=$(basename "$APPIMAGE_PATH")
           VERSION="${TAG#v}"
-          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/$(echo "$ASSET_NAME" | sed 's/ /./g')"
+          # The release asset's filename has spaces replaced with dots by GitHub.
+          ASSET_URL_NAME=$(echo "$ASSET_NAME" | sed 's/ /./g')
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/${ASSET_URL_NAME}"
           SIGNATURE=$(cat "$APPIMAGE_SIG")
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
