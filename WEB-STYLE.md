@@ -12,21 +12,17 @@ That's the brand voice for the web. Use it (or a tight variant of it) in the org
 
 ## Palette
 
-Same five colors as the apps — see [STYLE.md → Palette](STYLE.md#palette). On the web, expose them as CSS variables with the same names but a shorter convention (no `--fm-` prefix):
+Same five colors as the apps — see [STYLE.md → Palette](STYLE.md#palette). On the web, the palette is **not redefined per page**. It lives in a single shared file at `https://krill-software.github.io/palette.css` (mirror of `@krill-software/desktop-ui/src/styles/palette.css`). Every web page links to it:
 
-```css
-:root {
-  --bg:            #FAFAFF;  /* Ghost White — page background */
-  --ink:           #30343F;  /* Space Cadet — body text, primary buttons */
-  --muted:         #878472;  /* Artichoke — secondary text, eyebrow labels */
-  --accent:        #DD7596;  /* Shimmering Blush — links, brand dot, emphasis */
-  --accent-strong: #FF82BF;  /* Brilliant Rose — hover states */
-  --rule:          rgba(48, 52, 63, 0.08);  /* hairline borders */
-  --rule-strong:   rgba(48, 52, 63, 0.18);  /* card borders, button outlines */
-}
+```html
+<link rel="stylesheet" href="https://krill-software.github.io/palette.css" />
 ```
 
-No other colors. No grays except the alpha-Space-Cadet rules above. If a page needs a sixth, raise it as a design decision — same rule as the apps.
+That single file ships **both light-mode tokens and the `@media (prefers-color-scheme: dark)` override** — system-following dark mode is automatic. The CSS variables use the `--fm-` prefix (matching the apps' chrome): `--fm-bg`, `--fm-text`, `--fm-muted`, `--fm-accent`, `--fm-accent-strong`, `--fm-rule`, `--fm-rule-strong`, `--fm-selection`.
+
+The org page's `palette.css` is the source of truth for both the web and the apps; when the palette changes, update **two files**: the desktop-ui copy (for apps) and the org-site copy (for web). A small `scripts/sync-palette.sh` keeps them aligned.
+
+Page-specific styles (typography sizes, hero layout, card styles) stay inline per page. Only the palette is shared. If a page needs a sixth color, raise it as a design decision — same rule as the apps.
 
 ## Typography
 
@@ -172,7 +168,7 @@ Mono 13px, muted color. Two columns: copyright on the left, contextual links on 
 ## Don't
 
 - Don't use a different font for one page.
-- Don't put dark mode toggles, theme pickers, or "system / light / dark" radios anywhere.
+- Don't add dark-mode toggles, theme pickers, or "system / light / dark" radios anywhere. (Dark mode is automatic via `prefers-color-scheme`; the linked `palette.css` ships the inverted tokens already.)
 - Don't use stock photography or marketing illustrations.
 - Don't add scroll-triggered animations.
 - Don't link out to Twitter / X / Discord / etc. krill is a software project, not a community.

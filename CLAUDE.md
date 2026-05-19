@@ -34,7 +34,8 @@ Treat these as decided. Don't relitigate them per app.
 - Linux x86_64 only. AppImage + `.deb`. No Flatpak, no Snap, no Windows / macOS code paths.
 - MIT license.
 - One window per document.
-- No telemetry, no accounts, no plugins, no dark mode, no settings panel in v1.
+- No telemetry, no accounts, no plugins, no settings panel in v1.
+- Dark mode: system-following only (no in-app toggle) via `prefers-color-scheme`; the locked palette inverts background and ink only.
 - **Naming.** Slug = directory name under `krill-software/`. Binary, identifier, lib name, state dir, repo, and productName all derive from it. See [STYLE.md](STYLE.md) → Naming. Don't ask the user for any of these — only ask for the directory name (which is the new-app input).
 
 ## Always ask the user
@@ -48,7 +49,7 @@ These haven't been pinned globally and should be confirmed per app:
 ## Don't
 
 - Don't add a settings or preferences panel without asking — the bar is high.
-- Don't introduce dark mode, theme support, or custom palettes.
+- Don't introduce a dark-mode toggle, a theme picker, or user-authored palettes. (The palette inverts automatically via `prefers-color-scheme`; that's the entire dark-mode surface.)
 - Don't add cross-platform conditionals (`#[cfg(target_os = "windows")]`, `process.platform === "darwin"`, etc.).
 - Don't add telemetry, analytics, error reporting, "anonymous usage stats", or any network call the user didn't ask for.
 - Don't add a plugin / extension / scripting surface.

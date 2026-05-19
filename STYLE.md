@@ -43,7 +43,7 @@ This is the only place where capitalization differs from the slug. Don't second-
 
 ## Palette
 
-Single locked light palette. **No dark mode**, no system-following, no user themes.
+Single locked palette in five named colors. **System-following dark mode** (only): the background and ink invert into the Space-Cadet hue family, the two pinks stay put. **No in-app toggle, no theme picker, no user themes.** The webview follows `prefers-color-scheme` automatically.
 
 | Role             | Hex       | Usage                                                       |
 |------------------|-----------|-------------------------------------------------------------|
@@ -256,7 +256,7 @@ No "Preferences" panel in v1. If you find yourself adding settings, ask whether 
 
 ## Anti-patterns — never do these
 
-- **No dark mode.** The light palette is part of the brand.
+- **System-following dark mode, no toggle.** The webview follows `prefers-color-scheme`. The five named colors stay the same; only the background, ink, and rule tokens flip. Never introduce an in-app theme switcher — that's the kind of settings-panel surface krill rejects.
 - **No plugins, themes, or skins.**
 - **No multi-window** for a single document.
 - **No accounts, sign-in, or cloud sync.**
