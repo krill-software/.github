@@ -176,21 +176,21 @@ Hides everything except `#viewport` (and any sub-panes inside it that aren't sep
 
 Every app ships a single icon in the same shape language so a row of krill apps in a launcher reads as a set, not as five unrelated installs.
 
-**The tile.** iOS-style squircle (rounded square, ~22% corner radius on a 1024px master). Solid Ghost White (`#FAFAFF`) ground — the same color as the app background, so the icon feels continuous with the window it opens. No outer border, no drop shadow, no gradient on the tile itself.
+**The tile.** A solid circle of Shimmering Blush (`#DD7596`, `--fm-accent`) filling the 1024px master edge-to-edge. No outer border, no drop shadow, no gradient. The circle is rendered supersampled (4×) so its edge is clean at every downscale. A row of krill apps in a launcher reads as a set of pink discs.
 
-**The glyph.** A single [Lucide](https://lucide.dev) icon (MIT) that names the app's domain in one object — `image` for `image-viewer`, `crop` for `image-editor`, `rss` for `rss-reader`, `palette` for `color-editor`, `file-pen-line` for `markdown-editor`. Centered, occupying the inner ~70% of the tile (≈720px on a 1024px master). One object, not a scene.
+**The glyph.** A single [Lucide](https://lucide.dev) icon (MIT) that names the app's domain in one object — `image` for `image-viewer`, `crop` for `image-editor`, `rss` for `rss-reader`, `palette` for `color-editor`, `file-pen-line` for `markdown-editor`. Centered, occupying the inner **~56%** of the tile (≈576px on a 1024px master) so the pink ground has comfortable padding around the glyph. One object, not a scene.
 
-**Color.** Lucide stroke recolored to Space Cadet (`#30343F`). No fills, no gradients, no second hue. The window chrome and the icon share one ink color — a krill app is monochrome from the launcher tile inward. The locked palette stays locked everywhere.
+**Color.** Lucide stroke recolored to Ghost White (`#FAFAFF`, `--fm-bg`) on the pink circle. No fills, no gradients, no second hue — two locked-palette colors, accent ground + background-color glyph. The icon is the palette's accent and background, nothing else.
 
-**Stroke.** Lucide ships at 24×24 with `stroke-width: 2`. Scaled to 720px the stroke renders at ~60px, which reads at every required size including 32px. Don't thin the stroke for "elegance" at large sizes — the 32px launcher rendering is the honest test, and a hairline stroke disappears there.
+**Stroke.** Lucide ships at 24×24 with `stroke-width: 2`. Scaled to 576px the stroke renders at ~48px, which reads at every required size including 32px. Don't thin the stroke for "elegance" at large sizes — the 32px launcher rendering is the honest test, and a hairline stroke disappears there.
 
 **Picking the glyph.** Browse [lucide.dev/icons](https://lucide.dev/icons) and pick the one that names the app's job in a single noun. If you can't find one in Lucide, the app's purpose is probably broader than a krill app should be — narrow the purpose, not the search. Don't combine two Lucide icons into a composite; don't draw a custom glyph "in Lucide style." One icon, as Lucide drew it.
 
-**Sizes & files.** Master is `src-tauri/icons/icon.png` at 1024×1024. Tauri's other required sizes (`32x32.png`, `128x128.png`, `128x128@2x.png`) are downscaled from it. The render pipeline lives in [scripts/render-icons.py](scripts/render-icons.py) at the repo root — edit the `APPS` map at the top to add a new app or change a glyph, then run `python3 scripts/render-icons.py .` from the repo root.
+**Sizes & files.** Master is `src-tauri/icons/icon.png` at 1024×1024. Tauri's other required sizes (`32x32.png`, `128x128.png`, `128x128@2x.png`) are downscaled from it. The render pipeline lives in [scripts/render-icons.py](scripts/render-icons.py) (in this `.github` repo) — edit the `APPS` map at the top to add a new app or change a glyph, then run it with the `krill-software/` parent directory as the argument: `python3 scripts/render-icons.py ~/dev/krill-software`. It writes each app's `src-tauri/icons/` in place. Requires Python with Pillow and ImageMagick's `convert` on PATH.
 
 ### Fallback when no Lucide icon fits
 
-If a new app genuinely has no matching Lucide glyph (rare — push back on the app's scope first), ship a typographic placeholder in the same tile so the launcher row still feels right. Don't ship the default Tauri icon, and don't borrow another app's glyph.
+If a new app genuinely has no matching Lucide glyph (rare — push back on the app's scope first), ship a typographic placeholder in the same pink circle so the launcher row still feels right. Don't ship the default Tauri icon, and don't borrow another app's glyph.
 
 ```
 +--------------+
