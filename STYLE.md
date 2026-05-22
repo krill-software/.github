@@ -135,6 +135,15 @@ Every krill app uses the same 3-row body shape. The package
 - Dirty marker is a `•` accent prefix on the filename, driven by `body[data-dirty="true"]`. Apps set the body data attribute; the package owns the prefix CSS.
 - Window controls (min / max / close) on the right.
 
+### Help menu
+
+Help is the canonical home for app metadata — krill has no macOS-style app menu, and a separate About *window* is the kind of surface the suite avoids. The menu carries exactly two things, in this order:
+
+1. **A static version line** — the first item, non-interactive, muted: `<Product Name> <version>` (e.g. `Image Editor 0.2.1`). Not a link, not an "About…" dialog — just the fact, readable at a glance. The version is the `productName` + `package.json` version, supplied to `mountChrome()` so the package renders the line; apps don't build it themselves.
+2. **`Check for updates…`** — the canonical updater action (see CLAUDE.md → In-app updater).
+
+No "About", no credits screen, no license viewer, no "What's new". If a user needs the license it's in the repo.
+
 ### Body — main + optional aux
 
 - **AUX (left, 260px fixed)**: tools, navigation, settings, output panels. Created by `mountChrome({ showAuxPane: true })`.
