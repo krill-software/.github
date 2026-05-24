@@ -87,6 +87,27 @@ If you find an off-palette color in existing code (including older krill apps), 
 
 **The palette is for UI, not output.** The five locked colors govern what's painted on the running app's screen. They do *not* govern what the app *produces*: print stylesheets (`@media print`), exported PDFs, rendered or generated images, or content the app is displaying (a PDF's own page color, an image's pixels). Output follows whatever conventions make the output good — white paper, white page background, accurate content reproduction.
 
+## Status line
+
+Every krill app that mounts the status line follows the same convention
+for what goes where, so the same eye-movement habits work across apps:
+
+- **Left half (`chrome.statusInfo`)** is reserved for the app's
+  version, formatted as `vX.Y.Z`. No product name — the titlebar
+  already carries that. Read from `package.json` / `Cargo.toml` at
+  build time. Static across the session; never changes after boot.
+- **Right half (`chrome.statusState`)** holds whatever live meta-info
+  the app wants to surface — file position, document size, peer count,
+  cursor coords, current mode. Changes as the user works.
+
+The status line is a **reporting** surface, not a control surface. The
+version label is intentionally non-interactive — "check for updates" is
+already a menu action, and putting a click target into the status area
+breaks the implicit contract that nothing down there does anything when
+you tap it. If a piece of state genuinely warrants action (e.g.
+"resolve merge conflict"), use a banner in the viewport or a menu
+item, not the status line.
+
 ## In-app updater
 
 Every krill app ships with a `Help → Check for updates…` entry that
@@ -129,6 +150,47 @@ the private key + password live as org-level GitHub secrets
 (`TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`), and
 the public key string is baked into each app's `tauri.conf.json`. New
 apps just paste the same pubkey; nothing per-app to generate.
+
+## Per-app landing page (`docs/`)
+
+Every krill app ships a single-page GitHub Pages site at
+`krill-software.github.io/<slug>/` from the repo's `docs/index.html`.
+The page follows the **same design language as the org site** — same
+fonts (Inter / Source Serif 4 / JetBrains Mono), same palette tokens,
+same nav with the dotted brand, hero with eyebrow + serif h1 (one
+italic `<em>` accent word) + lede + CTA buttons + meta line.
+
+**Use the most recent polished app as your template** — currently any
+of [text-editor](https://github.com/krill-software/text-editor/blob/main/docs/index.html),
+[image-editor](https://github.com/krill-software/image-editor/blob/main/docs/index.html),
+or [markdown-editor](https://github.com/krill-software/markdown-editor/blob/main/docs/index.html).
+Do **not** copy from the older 60-line single-screen template
+(csv-editor / document-viewer still have that one — those are stragglers
+to be upgraded, not patterns to mirror).
+
+Required sections, in order:
+
+1. **`nav.top`** with brand `krill / <slug>` (or `krill / <product>`).
+2. **`header.hero`** — eyebrow, serif h1 with one italic accent,
+   serif lede, AppImage + .deb download buttons pointing at the
+   current release, meta line (`vX.Y.Z · Linux x86_64 · Free & open source`).
+3. **`.preview-frame`** — a static mock of the live UI (a slice that
+   shows what the app actually looks like). Keep it hand-rolled HTML,
+   no screenshots — they get stale, hi-DPI is a pain, and the locked
+   palette makes mocks easy.
+4. **`section#features`** — 6 tagged features (`.tag` + `h3` + `p`).
+5. **`section#principles`** — 4 borderleft-accent principles
+   summarizing what the app *isn't*.
+6. **`section#install`** — copy on the left, `.install-box` on the
+   right with shell commands for AppImage and `.deb` install paths.
+7. **`footer`** — © krill · MIT line, GitHub + issues links.
+
+Bump download URLs and the `meta` version string on every release.
+
+After cutting a new app, also add a card to the org site
+([krill-software.github.io](https://github.com/krill-software/krill-software.github.io))
+and bump the `N apps` / `N tools` counters in the hero and apps
+section heading.
 
 ## Release flow
 
