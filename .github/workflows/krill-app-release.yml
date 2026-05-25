@@ -194,3 +194,52 @@ jobs:
           echo
           echo "==> Uploading to release ${TAG}"
           gh release upload "${TAG}" latest.json --repo "${REPO}" --clobber
+
+      - name: Bump docs/index.html to ${{ github.ref_name }}
+        # Updates the landing page's hero version + download URLs to point
+        # at this release, then commits to main. Skipped if the app has
+        # no docs/ landing page yet. Bot-authored commit so it doesn't
+        # confuse `git blame`.
+        env:
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! -f docs/index.html ]]; then
+            echo "No docs/index.html — skipping docs bump."
+            exit 0
+          fi
+
+          VERSION="${TAG#v}"
+
+          # We checked out the tag; commit + push needs to land on main.
+          git fetch origin main:refs/remotes/origin/main
+          git checkout -B main origin/main
+
+          # Tauri converts spaces in productName to dots in artifact
+          # filenames; bake that into the URL prefix so productName
+          # changes (e.g. "Markdown" → "Text Editor") propagate too.
+          ASSET_PREFIX=$(echo "${{ inputs.product-name }}" | sed 's/ /./g')
+
+          sed -i -E \
+            -e "s|<strong>v[0-9]+\.[0-9]+\.[0-9]+</strong>|<strong>v${VERSION}</strong>|g" \
+            -e "s|/v[0-9]+\.[0-9]+\.[0-9]+/|/v${TAG#v}/|g" \
+            -e "s|/v[0-9]+\.[0-9]+\.[0-9]+/[A-Za-z._%20]+_[0-9]+\.[0-9]+\.[0-9]+_amd64|/v${VERSION}/${ASSET_PREFIX}_${VERSION}_amd64|g" \
+            -e "s|\"[A-Za-z._%20]+_[0-9]+\.[0-9]+\.[0-9]+_amd64|\"${ASSET_PREFIX}_${VERSION}_amd64|g" \
+            -e "s|[A-Za-z.]+_[0-9]+\.[0-9]+\.[0-9]+_amd64|${ASSET_PREFIX}_${VERSION}_amd64|g" \
+            docs/index.html
+
+          if git diff --quiet docs/index.html; then
+            echo "docs/index.html already current — no changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          git commit -m "docs: bump landing page to ${TAG}
+
+          Auto-bumped by the shared krill-app-release workflow on tag push."
+          git push origin main

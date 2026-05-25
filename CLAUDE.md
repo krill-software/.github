@@ -185,7 +185,14 @@ Required sections, in order:
    right with shell commands for AppImage and `.deb` install paths.
 7. **`footer`** — © krill · MIT line, GitHub + issues links.
 
-Bump download URLs and the `meta` version string on every release.
+**Version bumping is automatic.** The shared `krill-app-release.yml`
+workflow runs a `Bump docs/index.html` step on every tag push that
+sed-updates the hero `<strong>v…</strong>`, the `/v…/` path segment in
+download URLs, and the `_X.Y.Z_amd64` version segment in artifact
+filenames, then commits the result to `main` as a `github-actions[bot]`
+commit. Don't hand-bump those strings — they'll be overwritten on the
+next release anyway. The bot also rewrites the `ASSET_PREFIX` (from
+`productName` with spaces → dots) so productName renames propagate.
 
 After cutting a new app, also add a card to the org site
 ([krill-software.github.io](https://github.com/krill-software/krill-software.github.io))
