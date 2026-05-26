@@ -59,6 +59,6 @@ Solves the "I have 47 Chrome tabs I'll never read" problem.
 
 ---
 
-*(iphone-photos graduated → [photos-import](https://github.com/krill-software/photos-import) with SPEC + M1 scaffold landed.)*
+*(iphone-photos graduated → [photo-importer](https://github.com/krill-software/photo-importer) with SPEC + M1 landed.)*
 
 ---
