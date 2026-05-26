@@ -59,37 +59,6 @@ Solves the "I have 47 Chrome tabs I'll never read" problem.
 
 ---
 
-## iphone-photos — pull Camera Roll over USB
-
-**Pitch.** "Open Photos importer → see Camera Roll thumbnails → select
-→ import to a folder." A slim, krill-shaped Image Capture clone for
-Linux, scoped to the iPhone case.
-
-**Shape.** Shell-family: sidebar = device + recent imports / main =
-thumbnail grid with multi-select + Import button.
-
-**Why it fits krill.** One job. No accounts, no cloud. Wraps
-`libimobiledevice` (already mature on Linux) so the protocol layer is
-free; krill app is just the calm UI.
-
-**Stack notes:**
-- `libimobiledevice` + `ifuse` for the mount + AFC protocol — Rust
-  bindings via `imobiledevice-rs` or shell out.
-- gvfs-afc already mounts iPhones via Nautilus on most distros; this
-  app would either drive `libimobiledevice` directly or browse the
-  existing mount.
-
-**Why *not* try wireless / AirDrop:** Apple owns AWDL; reverse-engineered
-attempts (`opendrop`, `owl`) are flaky and depend on specific Wi-Fi
-chipsets + kernel modules. Not krill-shaped. A wireless story is a
-*separate* iOS companion project (file-drop-iOS shape), explicitly out
-of scope here.
-
-**Open scoping questions:**
-- Just iPhone, or "any USB camera / phone with PTP/MTP"? (krill instinct
-  is "just iPhone" — single shape, no detection branches.)
-- Import destination: configurable per-import or fixed folder?
-- HEIC/HEIF transcoding to JPEG on import, or copy as-is?
-- Live Photos: pull the still only, or both?
+*(iphone-photos graduated → [photos-import](https://github.com/krill-software/photos-import) with SPEC + M1 scaffold landed.)*
 
 ---
