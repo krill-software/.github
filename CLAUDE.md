@@ -195,9 +195,10 @@ next release anyway. The bot also rewrites the `ASSET_PREFIX` (from
 `productName` with spaces → dots) so productName renames propagate.
 
 After cutting a new app, also add a card to the org site
-([krill-software.github.io](https://github.com/krill-software/krill-software.github.io))
-and bump the `N apps` / `N tools` counters in the hero and apps
-section heading.
+([krill-software.github.io](https://github.com/krill-software/krill-software.github.io)).
+The org site deliberately carries no app-count copy (no `N apps` /
+`N tools` numbers) — the suite grows, so don't reintroduce a hardcoded
+count that would go stale.
 
 ## Release flow
 
