@@ -231,14 +231,22 @@ jobs:
             -e "s|[A-Za-z.]+_[0-9]+\.[0-9]+\.[0-9]+_amd64|${ASSET_PREFIX}_${VERSION}_amd64|g" \
             docs/index.html
 
-          if git diff --quiet docs/index.html; then
-            echo "docs/index.html already current — no changes."
+          # Jekyll-themed pages keep the version in docs/_config.yml.
+          # The theme reads site.version to render URLs/filenames, so it
+          # has to track the tag too.
+          if [[ -f docs/_config.yml ]]; then
+            sed -i -E "s|^(version:[[:space:]]*)[0-9]+\.[0-9]+\.[0-9]+|\1${VERSION}|" docs/_config.yml
+          fi
+
+          if git diff --quiet docs/index.html docs/_config.yml 2>/dev/null; then
+            echo "docs already current — no changes."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/index.html
+          [[ -f docs/_config.yml ]] && git add docs/_config.yml
           git commit -m "docs: bump landing page to ${TAG}
 
           Auto-bumped by the shared krill-app-release workflow on tag push."
