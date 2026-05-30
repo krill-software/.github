@@ -38,6 +38,56 @@ Treat these as decided. Don't relitigate them per app.
 - Dark mode: system-following only (no in-app toggle) via `prefers-color-scheme`; the locked palette inverts background and ink only.
 - **Naming.** Slug = directory name under `krill-software/`. Binary, identifier, lib name, state dir, repo, and productName all derive from it. See [STYLE.md](STYLE.md) → Naming. Don't ask the user for any of these — only ask for the directory name (which is the new-app input).
 
+## No copy-paste of app-specific details
+
+When scaffolding a new app by mirroring an existing one, copy the
+*structure* (file tree, build wiring, capabilities, shared
+dependencies) — never the app-specific identity. Every name, every
+piece of copy, every URL, every example filename must derive from
+the new app's own SPEC.md and slug. Carrying over the source app's
+productName / brand / hero copy / feature names / example file
+extension is the most common krill scaffolding bug, and it surfaces
+on the live site months later as a deployed page describing the
+wrong app.
+
+**Inconsistency is a smell.** If you ever notice productName,
+brand line, page title, or any user-facing string drifting from
+the app's directory slug (e.g. `text-editor/` with `productName:
+"Markdown"`), surface it to the user as a likely copy-paste
+artifact before doing anything else with it. Don't just propagate
+the wrong name — the inconsistency itself is information.
+
+When in doubt, the SPEC.md's "Identity" table is canonical. If the
+SPEC contradicts what's in `tauri.conf.json` / `Cargo.toml` /
+`package.json` / `docs/`, the SPEC wins and the code is stale.
+
+## Shared code lives in the shared packages
+
+Two krill apps duplicating the same non-trivial code is also a
+copy-paste smell. Generic, reusable code belongs in the shared
+packages, not in each app:
+
+- **Rust shared code** → [`krill-desktop-core`](https://github.com/krill-software/desktop-core).
+  XDG state I/O, window geometry, file path helpers, dev-fixture
+  probing, IO error formatting, updater builder extension — all the
+  cross-app Rust primitives live here.
+- **TypeScript / CSS shared code** → [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui).
+  Chrome (titlebar / menu / status line / aux pane), palette CSS,
+  action registry, empty-state helpers, boot-error helper,
+  checkForUpdates wrapper.
+
+If you're tempted to copy a Rust struct, a helper function, a CSS
+block, or a TS module from one app to another, **stop and ask**:
+is this app-specific or generic? If it's generic, lift it into
+the shared package and reference it from both apps. The bar for
+"generic enough" is "would a third krill app written tomorrow want
+this too?" — if yes, share.
+
+The opposite is also a rule: don't put app-specific things into the
+shared packages. `desktop-ui` should never know what file-drop's
+contact card looks like; `desktop-core` should never grow code that
+only photo-importer needs.
+
 ## Always ask the user
 
 These haven't been pinned globally and should be confirmed per app:
