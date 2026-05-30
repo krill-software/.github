@@ -71,25 +71,25 @@ The app's local `styles.css` should only carry app-specific tokens (font-family 
 
 ## Typography
 
-Every krill app bundles the same three webfonts so the look is identical across machines. They live in `src/assets/fonts/` (woff2 only) with the licenses next to them, and each app's `styles.css` opens with the `@font-face` block plus these three CSS variables:
+Fonts ship with [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui) — apps don't bundle their own webfonts or redeclare `@font-face`. The package's `fonts.css` (auto-imported via `import "@krill-software/desktop-ui/styles"`) loads two monos and `palette.css` defines these three CSS variables:
 
 ```css
 :root {
-  --fm-sans:  "Inter",   ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --fm-serif: "Charter", Georgia, "Liberation Serif", serif;
-  --fm-mono:  "Hasklig", "Source Code Pro", "JetBrains Mono", ui-monospace, monospace;
+  --fm-mono:  "JetBrains Mono", "Hasklig", "Source Code Pro", ui-monospace, monospace;
+  --fm-sans:  ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fm-serif: ui-serif, Georgia, "Source Serif 4", serif;
 }
 ```
 
-| Variable      | Family    | Weights bundled    | Use                                                           |
-|---------------|-----------|--------------------|---------------------------------------------------------------|
-| `--fm-sans`   | Inter     | 400, 600, 700      | UI chrome (titlebar, lists, buttons, status line); body text in non-prose apps |
-| `--fm-serif`  | Charter   | 400/700, italic+bold-italic | Long-form prose (markdown preview, rss article body) |
-| `--fm-mono`   | Hasklig   | 400/700, italic+bold-italic | Code, hex values, dates, numeric labels, file paths   |
+| Variable      | Family          | Bundled?               | Use                                                                       |
+|---------------|-----------------|------------------------|---------------------------------------------------------------------------|
+| `--fm-mono`   | JetBrains Mono  | Yes (4 woff2)          | All chrome (titlebar, menus, status line); default body in non-prose apps |
+| `--fm-sans`   | system fallback | No — system-ui chain   | Apps that want a specific sans (Inter, etc.) link a webfont in their HTML and override locally |
+| `--fm-serif`  | system fallback | No — ui-serif fallback | Apps that need a serif body link Source Serif 4 / Charter etc. locally    |
 
-The fonts in `markdown-editor/src/assets/fonts/` are the source of truth — copy from there when scaffolding a new app. Don't introduce a fourth family or rename the variables.
+**Hasklig is also bundled.** It's available by name (`font-family: "Hasklig"`) for apps that want a calmer text-mono in long-form content (text-editor's editor body uses it). Don't introduce a fourth family or rename the variables.
 
-Body chrome size: 13px. Status line: 11px. Section headers: 11px uppercase, 0.08em letterspacing.
+Body chrome size: **12px**. Status line: **12px**. Titlebar filename: **12px**. Section headers: 11px uppercase, 0.08em letterspacing.
 
 ### Always pick whole-pixel font sizes
 
@@ -116,7 +116,7 @@ Every krill app uses the same 3-row body shape. The package
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  File Edit View …          •photo.jpg            —   □   ×       │  titlebar (40px)
+│  File Edit View …             photo.jpg •         —   □   ×      │  titlebar (44px)
 ├──────────────────────────────────────────────────────────────────┤
 │              │                                                   │
 │   AUX        │       MAIN                                        │
@@ -124,18 +124,18 @@ Every krill app uses the same 3-row body shape. The package
 │   tools/nav) │                                                   │
 │              │                                                   │
 ├──────────────────────────────────────────────────────────────────┤
-│  status-info (file identity)        status-state (position/mode) │  status line (28px)
+│  v0.2.1                                Ln 6 · Col 36 · UTF-8     │  status line (34px)
 └──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Titlebar
 
-- 40px tall, with an **8px symmetric gutter** on each side. Children sit flush against the gutter — no extra container padding.
+- **44px tall**, with a **16px symmetric gutter** on each side. Children sit flush against the gutter — no extra container padding.
 - Menus on the left (`File`, `Edit`, `Image`, `Filter`, `View`, `Go`, `Help` — only those with registered actions render). Each renders as a **22px-tall rounded box** (4px radius) with 8px internal padding that highlights on hover with `var(--fm-rule)`.
 - Window controls (min / max / close) on the right, same 22px rounded-box shape with icon glyphs (no traffic-light dots — those were the v0.7 design and have been retired). The close button gets a soft-red hover; min / max use the same rule-alpha hover as menu triggers.
-- **Filename centered on the *full* titlebar** (not on the middle flex slot — `position: absolute` on `#titlebar`). Empty when no file is open.
-- Dirty marker is a `•` accent prefix on the filename, driven by `body[data-dirty="true"]`. Apps set the body data attribute; the package owns the prefix CSS.
-- **Text-edge alignment.** With the 8px gutter + 8px hover-box padding, all glyph text in the titlebar (menu labels, button icons) sits **16px from the window edge**. The status-line text column matches.
+- **Filename centered on the *full* titlebar** via `position: absolute; left: 50%; transform: translate(-50%, -50%)`. Empty when no file is open. Font: `--fm-mono` at 12px, no letter-spacing tweak.
+- **Dirty marker** is an accent `•` hanging to the *right* of the filename — rendered as a `::after` pseudo absolutely positioned `left: 100%; margin-left: 6px` so the title element's box stays exactly the filename and the centering math isn't nudged off. Driven by `body[data-dirty="true"]`; apps set the data attribute, the package owns the marker.
+- **Text-edge alignment.** With the 16px gutter + 8px hover-box padding, all glyph text in the titlebar (menu labels, button icons) sits **24px from the window edge**.
 
 ### Help menu
 
@@ -155,10 +155,10 @@ No "About", no credits screen, no license viewer, no "What's new". If a user nee
 
 ### Status line
 
-- 28px tall, with **16px symmetric padding** so the status text column lines up with the titlebar's glyph column at the top.
-- **LEFT (`#status-info`)** — file identity. Type, size, structural dimensions. Doesn't change as the user works.
-- **RIGHT (`#status-state`)** — position / state. Page X/Y, word count, zoom %, mode. Changes constantly.
-- Pixel size is *file identity* (left). Word count and page position are *state* (right) — they're different categories.
+- **34px tall**, with **20px symmetric padding**. `--fm-mono` at 12px, Artichoke text on Ghost White.
+- **LEFT (`#status-info`)** — the app's **version**, formatted `vX.Y.Z` (e.g. `v0.2.1`). No product name; the titlebar already carries that. Static across the session; never changes after boot. Apps wire this via `chrome.statusInfo.textContent = \`v${__APP_VERSION__}\`` at mount (`__APP_VERSION__` defined through vite's `define` from `package.json#version`).
+- **RIGHT (`#status-state`)** — live state. Position, mode, encoding (e.g. `Ln 6 · Col 36 · UTF-8`). Updates as the user works. Use plain ` · ` separators in a single span — the `.sep::before` pseudo-pattern combined with the flex `gap` doubles up.
+- The status line is a **reporting** surface, not a control surface — nothing in it should be clickable.
 
 ### Empty + error placeholders
 
@@ -224,10 +224,10 @@ The fallback is meant to be replaced. Treat it like a TODO that's visible every 
 ## Window chrome
 
 - **Custom titlebar.** Native window decorations off (`"decorations": false` in `tauri.conf.json`).
-- **Layout:** `[menu bar] [drag region] [min] [max] [close]`. 40px tall, 8px gutter on each side.
+- **Layout:** `[menu bar] [drag region] [min] [max] [close]`. 44px tall, 16px gutter on each side.
 - **Min / max / close** as 22×22 rounded-box icon buttons, muted glyph color, hover paints `var(--fm-rule)` and lifts color to ink. Close hover paints a soft red instead. The menu triggers above match this shape exactly.
 - **Drag region** double-click toggles maximize.
-- **Status line** 28px tall at the bottom: filename · dirty marker · one or two app-specific values (word count, dimensions, slot mode). 16px padding on each side so its text column sits on the same vertical line as the titlebar's glyphs. Always visible; never hidden in non-preview modes.
+- **Status line** 34px tall at the bottom: `vX.Y.Z` on the left (static, from `package.json`), live position/mode state on the right (`Ln · Col · UTF-8`, page count, etc.). 20px padding on each side. Always visible; never hidden in non-preview modes.
 
 ## UX patterns
 
@@ -237,7 +237,7 @@ The fallback is meant to be replaced. Treat it like a TODO that's visible every 
 - **No nested settings dialogs.** Options live in the working view, next to the canvas / editor — see image-editor's right rail.
 - **Standard shortcuts** match Win/Mac conventions and must not be reassigned: `Ctrl+O` open, `Ctrl+S` save, `Ctrl+Shift+S` save-as, `Ctrl+N` new, `Ctrl+Z` / `Ctrl+Shift+Z` undo/redo, `Ctrl+Q` quit, `Ctrl+=` / `Ctrl+-` / `Ctrl+0` zoom (or font size).
 - **Drag-drop opens files.** CLI-arg also opens.
-- **Dirty marker** is a Shimmering Blush bullet (`•`) next to the filename in title bar and status line.
+- **Dirty marker** is a Shimmering Blush bullet (`•`) hanging to the right of the filename in the title bar (see the Titlebar section for the implementation detail). The status line does not duplicate it.
 
 ## Discoverability
 

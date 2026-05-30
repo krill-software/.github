@@ -170,7 +170,12 @@ for what goes where, so the same eye-movement habits work across apps:
   build time. Static across the session; never changes after boot.
 - **Right half (`chrome.statusState`)** holds whatever live meta-info
   the app wants to surface — file position, document size, peer count,
-  cursor coords, current mode. Changes as the user works.
+  cursor coords, current mode. Changes as the user works. Put the
+  whole right-hand string in a **single span** with literal ` · `
+  separators (e.g. `Ln 6 · Col 36 · UTF-8`). Splitting it into
+  multiple spans + relying on the `.sep::before` pseudo for the dot
+  doubles up against the flex container's `gap` and renders an extra
+  separator with a wide whitespace gap.
 
 The status line is a **reporting** surface, not a control surface. The
 version label is intentionally non-interactive — "check for updates" is

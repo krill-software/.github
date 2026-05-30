@@ -8,6 +8,27 @@ Everyone — with one specific bar to clear: **don't be ugly Linux software**. W
 
 We optimize for the median user's *experience*. We do not optimize for power users with strong opinions about configuration.
 
+## Krill principles
+
+Four words that anchor every decision. Everything else in this
+document is downstream of these.
+
+- **Focus.** Each app does one thing. One file, one window — no
+  tabs, no project trees, no mode pickers. The work in front of
+  you is the work.
+- **Beauty.** A locked palette, careful typography, chrome that
+  sits still. Linux software has a reputation for looking stuck
+  in 1998; krill exists in part to push back on that. The apps
+  shouldn't be the part of your desktop you have to forgive.
+- **Simplicity.** No settings panel, no plugin system, no
+  power-user knobs. The decisions are made on your behalf; the
+  surface is bounded. If a feature can't be explained in a
+  sentence, it doesn't ship.
+- **Ownership.** Your files live on your disk in their original
+  format. No accounts, no cloud, no telemetry, no upload-on-
+  launch. MIT licensed; build it yourself if you don't trust
+  ours.
+
 ## What a krill app is
 
 - **One job, done well.** Markdown. Image. Colors. Each app has a sentence-long purpose; if it can't be said in a sentence, it isn't a krill app.
