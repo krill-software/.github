@@ -116,7 +116,7 @@ Every krill app uses the same 3-row body shape. The package
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│ [☰] File Edit View …       •photo.jpg        [_] [□] [✕]         │  titlebar (32px)
+│  File Edit View …          •photo.jpg            —   □   ×       │  titlebar (40px)
 ├──────────────────────────────────────────────────────────────────┤
 │              │                                                   │
 │   AUX        │       MAIN                                        │
@@ -124,16 +124,18 @@ Every krill app uses the same 3-row body shape. The package
 │   tools/nav) │                                                   │
 │              │                                                   │
 ├──────────────────────────────────────────────────────────────────┤
-│ status-info (file identity)         status-state (position/mode) │  status line (24px)
+│  status-info (file identity)        status-state (position/mode) │  status line (28px)
 └──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Titlebar
 
-- Menus on the left (`File`, `Edit`, `Image`, `Filter`, `View`, `Go`, `Help` — only those with registered actions render).
+- 40px tall, with an **8px symmetric gutter** on each side. Children sit flush against the gutter — no extra container padding.
+- Menus on the left (`File`, `Edit`, `Image`, `Filter`, `View`, `Go`, `Help` — only those with registered actions render). Each renders as a **22px-tall rounded box** (4px radius) with 8px internal padding that highlights on hover with `var(--fm-rule)`.
+- Window controls (min / max / close) on the right, same 22px rounded-box shape with icon glyphs (no traffic-light dots — those were the v0.7 design and have been retired). The close button gets a soft-red hover; min / max use the same rule-alpha hover as menu triggers.
 - **Filename centered on the *full* titlebar** (not on the middle flex slot — `position: absolute` on `#titlebar`). Empty when no file is open.
 - Dirty marker is a `•` accent prefix on the filename, driven by `body[data-dirty="true"]`. Apps set the body data attribute; the package owns the prefix CSS.
-- Window controls (min / max / close) on the right.
+- **Text-edge alignment.** With the 8px gutter + 8px hover-box padding, all glyph text in the titlebar (menu labels, button icons) sits **16px from the window edge**. The status-line text column matches.
 
 ### Help menu
 
@@ -153,6 +155,7 @@ No "About", no credits screen, no license viewer, no "What's new". If a user nee
 
 ### Status line
 
+- 28px tall, with **16px symmetric padding** so the status text column lines up with the titlebar's glyph column at the top.
 - **LEFT (`#status-info`)** — file identity. Type, size, structural dimensions. Doesn't change as the user works.
 - **RIGHT (`#status-state`)** — position / state. Page X/Y, word count, zoom %, mode. Changes constantly.
 - Pixel size is *file identity* (left). Word count and page position are *state* (right) — they're different categories.
@@ -221,10 +224,10 @@ The fallback is meant to be replaced. Treat it like a TODO that's visible every 
 ## Window chrome
 
 - **Custom titlebar.** Native window decorations off (`"decorations": false` in `tauri.conf.json`).
-- **Layout:** `[menu bar] [drag region] [min] [max] [close]`. 32px tall.
-- **Min / max / close** as 36×32 SVG buttons, muted color, hover lifts to ink color, close hover goes accent.
+- **Layout:** `[menu bar] [drag region] [min] [max] [close]`. 40px tall, 8px gutter on each side.
+- **Min / max / close** as 22×22 rounded-box icon buttons, muted glyph color, hover paints `var(--fm-rule)` and lifts color to ink. Close hover paints a soft red instead. The menu triggers above match this shape exactly.
 - **Drag region** double-click toggles maximize.
-- **Status line** 22–24px tall at the bottom: filename · dirty marker · one or two app-specific values (word count, dimensions, slot mode). Always visible; never hidden in non-preview modes.
+- **Status line** 28px tall at the bottom: filename · dirty marker · one or two app-specific values (word count, dimensions, slot mode). 16px padding on each side so its text column sits on the same vertical line as the titlebar's glyphs. Always visible; never hidden in non-preview modes.
 
 ## UX patterns
 
