@@ -4,7 +4,7 @@ name: Krill app release (reusable)
 #
 # Tagged with `v*` in any consumer repo, the consumer's local workflow calls
 # this one and passes a couple of display strings; everything else (Linux
-# system deps, Rust toolchain, pnpm setup, tauri-action, draft release body,
+# system deps, Rust toolchain, pnpm setup, tauri-action, published release body,
 # updater manifest) is fixed here so all krill apps stay in sync.
 #
 # Usage from a consumer app:
@@ -101,7 +101,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "${{ inputs.product-name }} ${{ github.ref_name }}"
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           releaseBody: |
             ## Install
