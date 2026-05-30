@@ -15,6 +15,28 @@ Three shared repos that every app depends on:
 - **[`krill-desktop-core`](https://github.com/krill-software/desktop-core)** (Cargo git dep, pinned to a tag) — Rust: `state` module (XDG dir / load+save JSON / `WindowGeometry`), `fs` module (`read_bytes` / `absolute_path` / `format_io_err`), `dev` module (`test_file`). Each app's `src-tauri/src/lib.rs` declares the Tauri commands (the macro needs concrete symbols) but their bodies are one-liners delegating here.
 - **[krill-software/.github](https://github.com/krill-software/.github)** — reusable `krill-app-release.yml` workflow. Each app's local `.github/workflows/release.yml` is a 13-line caller that hands off to it.
 
+## Proof-of-concept apps (not ready for publish)
+
+These apps live in the krill-software directory but are still
+proof-of-concept — they should **not** be released, included on the
+org site, or pointed at from documentation as exemplars:
+
+- `activity-monitor`
+- `audio-editor`
+- `color-editor`
+- `launcher`
+- `photo-importer`
+- `svg-editor`
+- `terminal`
+- `video-player`
+
+When asked to "release all apps" or "update every krill app", **skip
+this list**. They may have working scaffolding and even some
+implemented features, but they haven't passed the design / scope bar
+to be part of the shipped suite yet. If the user explicitly names
+one, work on it — just don't release it until they confirm it's
+graduated. When one does graduate, remove it from this list.
+
 ## When the user asks for a new krill app
 
 1. **Frame it in one sentence.** "Edits markdown files." "Crops and exports raster images." If the purpose can't be said in a sentence, push back before writing code.
