@@ -192,7 +192,7 @@ Every app ships a single icon in the same shape language so a row of krill apps 
 
 **The glyph.** A single [Lucide](https://lucide.dev) icon (MIT) that names the app's domain in one object — `image` for `image-viewer`, `crop` for `image-editor`, `rss` for `rss-reader`, `palette` for `color-editor`, `file-pen-line` for `markdown-editor`. Centered, occupying the inner **~56%** of the tile (≈576px on a 1024px master) so the pink ground has comfortable padding around the glyph. One object, not a scene.
 
-**Color.** Lucide stroke recolored to Ghost White (`#FAFAFF`, `--fm-bg`) on the pink circle. No fills, no gradients, no second hue — two locked-palette colors, accent ground + background-color glyph. The icon is the palette's accent and background, nothing else.
+**Color.** **The ground is always Shimmering Blush (`#DD7596` / `--fm-accent`)**, edge-to-edge, no exceptions. The Lucide stroke is recolored to Ghost White (`#FAFAFF` / `--fm-bg`). No fills, no gradients, no second hue — exactly two locked-palette colors per icon. This is what makes a launcher row of krill apps read as a set; treat the pink ground as as load-bearing as the productName itself.
 
 **Stroke.** Lucide ships at 24×24 with `stroke-width: 2`. Scaled to 576px the stroke renders at ~48px, which reads at every required size including 32px. Don't thin the stroke for "elegance" at large sizes — the 32px launcher rendering is the honest test, and a hairline stroke disappears there.
 
@@ -228,6 +228,18 @@ The fallback is meant to be replaced. Treat it like a TODO that's visible every 
 - **Min / max / close** as 22×22 rounded-box icon buttons, muted glyph color, hover paints `var(--fm-rule)` and lifts color to ink. Close hover paints a soft red instead. The menu triggers above match this shape exactly.
 - **Drag region** double-click toggles maximize.
 - **Status line** 34px tall at the bottom: `vX.Y.Z` on the left (static, from `package.json`), live position/mode state on the right (`Ln · Col · UTF-8`, page count, etc.). 20px padding on each side. Always visible; never hidden in non-preview modes.
+
+### Window dimensions
+
+Every app opens at the same default size so a launcher full of krill windows feels like one product family, not a dozen disagreements:
+
+| Setting   | Value         | Rationale                                                                |
+|-----------|---------------|--------------------------------------------------------------------------|
+| Default   | `1296 × 800`  | Golden ratio (1.62 ≈ φ). Fits on the smallest common laptop after dock + menus. |
+| Minimum   | `720 × 445`   | Same ratio, halved. Users can resize freely below the default; this is the floor. |
+| Position  | `center: true`| First-launch only. After that, persisted window geometry from `state.json` wins. |
+
+Put these in every app's `tauri.conf.json` under `app.windows[0]`. Apps with a strong reason to deviate (image-editor wanting more vertical room for a tall canvas, etc.) can override — but the deviation should land in the app's SPEC.md so it's a deliberate choice, not drift.
 
 ## UX patterns
 
