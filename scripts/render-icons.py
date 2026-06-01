@@ -23,6 +23,7 @@ APPS = {
     "csv-editor":      "table",
     "text-editor":     "notepad-text",
     "terminal":        "square-terminal",
+    "system-monitor": "activity",
 }
 
 def fetch_svg(name):
