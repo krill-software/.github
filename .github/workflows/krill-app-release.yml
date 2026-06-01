@@ -37,9 +37,10 @@ on:
         type: string
         description: "Display name shown in the release title and filenames (e.g. 'Document Viewer')."
       example-file:
-        required: true
+        required: false
         type: string
-        description: "Example file path used in install instructions (e.g. 'paper.pdf')."
+        default: ""
+        description: "Example file path used in install instructions (e.g. 'paper.pdf'). Omit for apps that take no file argument."
     secrets:
       TAURI_SIGNING_PRIVATE_KEY:
         required: false
@@ -122,7 +123,7 @@ jobs:
 
             ```sh
             chmod +x "${{ inputs.product-name }}"_*.AppImage
-            ./"${{ inputs.product-name }}"_*.AppImage path/to/${{ inputs.example-file }}
+            ./"${{ inputs.product-name }}"_*.AppImage${{ inputs.example-file != '' && format(' path/to/{0}', inputs.example-file) || '' }}
             ```
 
             Verify with `sha256sum -c SHA256SUMS`.
