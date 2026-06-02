@@ -30,6 +30,7 @@ APPS = {
     "system-monitor":  "activity",
     "file-drop":       "send",
     "photo-importer":  "image-down",
+    "audio-editor":    "audio-lines",
 }
 
 def fetch_svg(name):
