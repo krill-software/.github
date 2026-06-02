@@ -92,6 +92,23 @@ jobs:
       - name: Install JS deps
         run: pnpm install --frozen-lockfile
 
+      - name: Regenerate app icon from canonical source
+        # Single source of truth for every krill app's launcher glyph
+        # is the APPS map in krill-software/.github/scripts/render-icons.py.
+        # We re-render the icon on every release so a stale check-in or
+        # a copy-pasted scaffold can't ship the wrong glyph. Idempotent —
+        # same slug → same four PNGs. If the slug isn't in the APPS map
+        # the script exits with a clear error.
+        env:
+          SLUG: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends python3-pil imagemagick
+          curl -fsSL -o /tmp/render-icons.py \
+            https://raw.githubusercontent.com/krill-software/.github/main/scripts/render-icons.py
+          mkdir -p src-tauri/icons
+          python3 /tmp/render-icons.py --slug "$SLUG" --out src-tauri/icons
+
       - name: Build & upload release
         id: tauri
         uses: tauri-apps/tauri-action@v0
