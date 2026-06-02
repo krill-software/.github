@@ -12,18 +12,24 @@ GHOST_WHITE      = "#FAFAFF"             # --fm-bg — the glyph stroke color
 MASTER = 1024
 GLYPH_SIZE = 576  # ~56% of MASTER — smaller than the old squircle's 70%
 
-# slug -> Lucide icon name
+# slug -> Lucide icon name. Source of truth for every krill app's
+# launcher glyph. Adding an app: append its slug and the chosen
+# Lucide name (browse https://lucide.dev/icons), then re-run the
+# script — or let the release workflow do it on the next tag.
 APPS = {
     "image-editor":    "crop",
     "image-viewer":    "image",
     "markdown-editor": "file-pen-line",
+    "markdown-viewer": "book-open",
     "rss-reader":      "rss",
     "color-editor":    "palette",
     "document-viewer": "file-text",
     "csv-editor":      "table",
     "text-editor":     "notepad-text",
     "terminal":        "square-terminal",
-    "system-monitor": "activity",
+    "system-monitor":  "activity",
+    "file-drop":       "send",
+    "photo-importer":  "image-down",
 }
 
 def fetch_svg(name):
@@ -65,10 +71,38 @@ def export(master, out_dir):
     for name, sz in sizes.items():
         master.resize((sz, sz), Image.LANCZOS).save(out_dir / name, "PNG")
 
-root = Path(sys.argv[1])
-for slug, glyph in APPS.items():
+def render_one(slug, out_dir):
+    glyph = APPS.get(slug)
+    if not glyph:
+        raise SystemExit(f"unknown slug {slug!r} — add it to APPS in this script")
     print(f"{slug:18s} -> lucide:{glyph}")
     svg = recolor(fetch_svg(glyph))
     master = make_master(svg)
-    export(master, root / slug / "src-tauri" / "icons")
-print("done")
+    export(master, out_dir)
+
+def main(argv):
+    # Two modes:
+    #   render-icons.py /path/to/krill-software
+    #     Bulk: regenerate icons for every slug in APPS into
+    #     <root>/<slug>/src-tauri/icons/. The local dev workflow.
+    #
+    #   render-icons.py --slug <slug> --out <dir>
+    #     Single app: drop the four PNGs into <dir>. The release-CI
+    #     workflow, which doesn't know about sibling repos.
+    if "--slug" in argv:
+        i = argv.index("--slug")
+        slug = argv[i + 1]
+        j = argv.index("--out")
+        out = Path(argv[j + 1])
+        render_one(slug, out)
+        print("done")
+        return
+    if len(argv) < 2:
+        raise SystemExit(__doc__ + "\nUsage:\n  render-icons.py <krill-software-root>\n  render-icons.py --slug <slug> --out <dir>")
+    root = Path(argv[1])
+    for slug in APPS:
+        render_one(slug, root / slug / "src-tauri" / "icons")
+    print("done")
+
+if __name__ == "__main__":
+    main(sys.argv)
