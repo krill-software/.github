@@ -31,6 +31,7 @@ APPS = {
     "file-drop":       "send",
     "photo-importer":  "image-down",
     "audio-editor":    "audio-lines",
+    "paint":           "brush",
 }
 
 def fetch_svg(name):
