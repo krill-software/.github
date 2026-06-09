@@ -28,7 +28,7 @@ APPS = {
     "text-editor":     "notepad-text",
     "terminal":        "square-terminal",
     "system-monitor":  "activity",
-    "file-drop":       "send",
+    "file-drop":       "file-signal",
     "photo-importer":  "image-down",
     "audio-editor":    "audio-lines",
     "paint":           "brush",
