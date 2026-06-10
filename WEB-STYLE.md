@@ -98,6 +98,36 @@ Mono, 13px, uppercase, letter-spacing `0.12em`, muted. One short phrase that fra
 - **Section padding:** 96px vertical, 1px top border in `--rule` between sections.
 - **Card grid (apps, features):** 2 columns desktop, 1 column ≤720px.
 
+## Page structure (app `docs/index.html`)
+
+Every app ships a single-page GitHub Pages site at
+`krill-software.github.io/<slug>/` from the repo's `docs/index.html`.
+Required sections, in order:
+
+1. **`nav.top`** with brand `krill / <slug>` (or `krill / <product>`).
+2. **`header.hero`** — eyebrow, serif h1 with one italic accent,
+   serif lede, AppImage + .deb download buttons pointing at the
+   current release, meta line (`vX.Y.Z · Linux x86_64 · Free & open source`).
+3. **`.preview-frame`** — a static mock of the live UI (a slice that
+   shows what the app actually looks like). Keep it hand-rolled HTML,
+   no screenshots — they get stale, hi-DPI is a pain, and the locked
+   palette makes mocks easy.
+4. **`section#features`** — 6 tagged features (`.tag` + `h3` + `p`).
+5. **`section#principles`** — 4 borderleft-accent principles
+   summarizing what the app *isn't*.
+6. **`section#install`** — copy on the left, `.install-box` on the
+   right with shell commands for AppImage and `.deb` install paths.
+7. **`footer`** — © krill · MIT line, GitHub + issues links.
+
+**Version bumping is automatic.** The shared `krill-app-release.yml`
+workflow runs a `Bump docs/index.html` step on every tag push that
+sed-updates the hero `<strong>v…</strong>`, the `/v…/` path segment in
+download URLs, and the `_X.Y.Z_amd64` version segment in artifact
+filenames, then commits the result to `main` as a `github-actions[bot]`
+commit. Don't hand-bump those strings — they'll be overwritten on the
+next release anyway. The bot also rewrites the `ASSET_PREFIX` (from
+`productName` with spaces → dots) so productName renames propagate.
+
 ## Components
 
 ### Nav
@@ -178,5 +208,14 @@ Mono 13px, muted color. Two columns: copyright on the left, contextual links on 
 ## Canonical starter
 
 `krill-software.github.io/index.html` is the reference implementation. New app pages should diff against it, change the hero text and the feature blocks, and keep everything else identical.
+
+For the **app page** specifically, use the most recent polished app as your
+template — currently any of
+[text-editor](https://github.com/krill-software/text-editor/blob/main/docs/index.html),
+[image-editor](https://github.com/krill-software/image-editor/blob/main/docs/index.html),
+or [markdown-editor](https://github.com/krill-software/markdown-editor/blob/main/docs/index.html).
+Do **not** copy from the older 60-line single-screen template
+(csv-editor / document-viewer still have that one — those are stragglers
+to be upgraded, not patterns to mirror).
 
 When the canonical changes (e.g. tagline updates, new section pattern), update the org page first and the apps' `docs/index.html` next in a single sweep — drift between pages is more visible on the web than on the desktop.

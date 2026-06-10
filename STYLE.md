@@ -158,7 +158,7 @@ No "About", no credits screen, no license viewer, no "What's new". If a user nee
 - **34px tall**, with **20px symmetric padding**. `--fm-mono` at 12px, Artichoke text on Ghost White.
 - **LEFT (`#status-info`)** — the app's **version**, formatted `vX.Y.Z` (e.g. `v0.2.1`). No product name; the titlebar already carries that. Static across the session; never changes after boot. Apps wire this via `chrome.statusInfo.textContent = \`v${__APP_VERSION__}\`` at mount (`__APP_VERSION__` defined through vite's `define` from `package.json#version`).
 - **RIGHT (`#status-state`)** — live state. Position, mode, encoding (e.g. `Ln 6 · Col 36 · UTF-8`). Updates as the user works. Use plain ` · ` separators in a single span — the `.sep::before` pseudo-pattern combined with the flex `gap` doubles up.
-- The status line is a **reporting** surface, not a control surface — nothing in it should be clickable.
+- The status line is a **reporting** surface, not a control surface — nothing in it should be clickable. If a piece of state genuinely warrants action (e.g. "resolve merge conflict"), use a banner in the viewport or a menu item, not the status line.
 
 ### Empty + error placeholders
 
