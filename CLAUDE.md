@@ -35,7 +35,6 @@ These apps live in the krill-software directory but are still
 proof-of-concept — they should **not** be released, included on the
 org site, or pointed at from documentation as exemplars:
 
-- `color-editor`
 - `launcher`
 - `photo-importer`
 - `svg-editor`
