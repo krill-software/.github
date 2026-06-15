@@ -32,6 +32,7 @@ APPS = {
     "photo-importer":  "image-down",
     "audio-editor":    "audio-lines",
     "paint":           "brush",
+    "pixel-editor":    "grid-2x2",
 }
 
 def fetch_svg(name):
