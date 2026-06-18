@@ -43,7 +43,7 @@ This is the only place where capitalization differs from the slug. Don't second-
 
 ## Palette
 
-Single locked palette in five named colors. **System-following dark mode** (only): the background and ink invert into the Space-Cadet hue family, the two pinks stay put. **No in-app toggle, no theme picker, no user themes.** The webview follows `prefers-color-scheme` automatically.
+Single locked palette in five named colors. **Dark mode**: the background and ink invert into the Space-Cadet hue family, the two pinks stay put. A titlebar light/dark **toggle** (built into `mountChrome()`) defaults to following `prefers-color-scheme` and remembers a per-app override. **No theme picker, no user themes** — the toggle only switches between the two locked modes.
 
 | Role             | Hex       | Usage                                                       |
 |------------------|-----------|-------------------------------------------------------------|
@@ -280,7 +280,7 @@ No "Preferences" panel in v1. If you find yourself adding settings, ask whether 
 
 ## Anti-patterns — never do these
 
-- **System-following dark mode, no toggle.** The webview follows `prefers-color-scheme`. The five named colors stay the same; only the background, ink, and rule tokens flip. Never introduce an in-app theme switcher — that's the kind of settings-panel surface krill rejects.
+- **Dark mode via the titlebar toggle.** Defaults to following `prefers-color-scheme`; a click overrides and persists per app (built into `mountChrome()`). The five named colors stay the same; only the background, ink, and rule tokens flip. The toggle is light/dark only — never a theme *picker* or user-authored palettes; that's the settings-panel surface krill still rejects.
 - **No plugins, themes, or skins.**
 - **No multi-window** for a single document.
 - **No accounts, sign-in, or cloud sync.**
