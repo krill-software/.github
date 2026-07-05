@@ -25,7 +25,7 @@ chaos" problem most designers and engineers have.
 
 **Open scoping questions:**
 - One library file with many projects (Shape B, file-drop-style) vs
-  one file per project (Shape A, document-viewer-style). Leans Shape B
+  one file per project (Shape A, pdf-reader-style). Leans Shape B
   because the user described projects-in-sidebar as the primary nav.
 - Embedded base64 blobs (portable but huge) vs folder-as-document
   bundle (`my-inspiration.kboard/` = `manifest.json` + `images/<sha>.png`,

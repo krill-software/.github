@@ -20,10 +20,10 @@ APPS = {
     "image-editor":    "crop",
     "image-viewer":    "image",
     "markdown-editor": "file-pen-line",
-    "markdown-viewer": "book-open",
+    "markdown-reader": "book-open",
     "rss-reader":      "rss",
     "color-editor":    "palette",
-    "document-viewer": "file-text",
+    "pdf-reader":      "file-text",
     "csv-editor":      "table",
     "text-editor":     "notepad-text",
     "terminal":        "square-terminal",
@@ -33,6 +33,7 @@ APPS = {
     "audio-editor":    "audio-lines",
     "paint":           "brush",
     "pixel-editor":    "grid-2x2",
+    "screenshots":     "camera",
 }
 
 def fetch_svg(name):

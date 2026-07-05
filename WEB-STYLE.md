@@ -215,7 +215,7 @@ template — currently any of
 [image-editor](https://github.com/krill-software/image-editor/blob/main/docs/index.html),
 or [markdown-editor](https://github.com/krill-software/markdown-editor/blob/main/docs/index.html).
 Do **not** copy from the older 60-line single-screen template
-(csv-editor / document-viewer still have that one — those are stragglers
+(csv-editor / pdf-reader still have that one — those are stragglers
 to be upgraded, not patterns to mirror).
 
 When the canonical changes (e.g. tagline updates, new section pattern), update the org page first and the apps' `docs/index.html` next in a single sweep — drift between pages is more visible on the web than on the desktop.

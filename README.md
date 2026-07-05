@@ -24,7 +24,7 @@ jobs:
   release:
     uses: krill-software/.github/.github/workflows/krill-app-release.yml@main
     with:
-      product-name: "Document Viewer"
+      product-name: "PDF Reader"
       example-file: "paper.pdf"
     permissions:
       contents: write

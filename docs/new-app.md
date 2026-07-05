@@ -2,7 +2,7 @@
 
 Read [PHILOSOPHY.md](../PHILOSOPHY.md) and [STYLE.md](../STYLE.md) first. The
 most complete reference template is
-[document-viewer](https://github.com/krill-software/document-viewer) — when in
+[pdf-reader](https://github.com/krill-software/pdf-reader) — when in
 doubt, copy its structure.
 
 ## The steps
@@ -10,7 +10,7 @@ doubt, copy its structure.
 1. **Frame it in one sentence.** "Edits markdown files." "Crops and exports raster images." If the purpose can't be said in a sentence, push back before writing code.
 2. **Confirm the *design* fits krill's** — calm, familiar, no power-user configurability. The app's *domain* (RSS, music, scratchpad notes, whatever) is fair game even if it's not typically a Win/Mac switcher request; the brand is in how it looks and feels, not in the category. If the user describes something Inkscape-shaped or GIMP-shaped, surface the mismatch — that's a design problem, not a domain one.
 3. **Draft `SPEC.md` first** — mirror the existing apps' SPECs (goals, non-goals, stack, model, layout, file format, milestones).
-4. **Scaffold by mirroring document-viewer's tree** — same configs, same minimal `index.html`. Add `@krill-software/desktop-ui` as a frontend git dep (chrome / palette / actions / empty state come from there). Add `krill-desktop-core` as a Cargo git dep (state I/O, file helpers, dev fixture probe come from there). The reusable release workflow is referenced from `krill-software/.github`. Three deps, no copy-paste boilerplate.
+4. **Scaffold by mirroring pdf-reader's tree** — same configs, same minimal `index.html`. Add `@krill-software/desktop-ui` as a frontend git dep (chrome / palette / actions / empty state come from there). Add `krill-desktop-core` as a Cargo git dep (state I/O, file helpers, dev fixture probe come from there). The reusable release workflow is referenced from `krill-software/.github`. Three deps, no copy-paste boilerplate.
 5. **Implement M1**, stop, and let the user steer the next milestone.
 
 ## Always ask the user

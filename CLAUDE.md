@@ -8,7 +8,7 @@ Before scaffolding a new app or making non-trivial changes to an existing one, r
 - [STYLE.md](STYLE.md) — engineering and visual conventions every app shares.
 - [WEB-STYLE.md](WEB-STYLE.md) — design language for landing pages + the org site.
 
-The most complete reference template is [document-viewer](https://github.com/krill-software/document-viewer) — Tauri shell, custom titlebar via [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui), palette wired up via the same package, reusable release workflow from [krill-software/.github](https://github.com/krill-software/.github), publish script, all in place. When in doubt, copy from there.
+The most complete reference template is [pdf-reader](https://github.com/krill-software/pdf-reader) — Tauri shell, custom titlebar via [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui), palette wired up via the same package, reusable release workflow from [krill-software/.github](https://github.com/krill-software/.github), publish script, all in place. When in doubt, copy from there.
 
 Three shared repos that every app depends on:
 
@@ -37,6 +37,7 @@ org site, or pointed at from documentation as exemplars:
 
 - `launcher`
 - `photo-importer`
+- `screenshots`
 - `svg-editor`
 - `terminal`
 - `video-player`
