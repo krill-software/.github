@@ -101,32 +101,62 @@ Mono, 13px, uppercase, letter-spacing `0.12em`, muted. One short phrase that fra
 ## Page structure (app `docs/index.html`)
 
 Every app ships a single-page GitHub Pages site at
-`krill-software.github.io/<slug>/` from the repo's `docs/index.html`.
-Required sections, in order:
+`krill-software.github.io/<slug>/` from the repo's `docs/`. The page
+is **not hand-rolled**: it's rendered by the shared Jekyll theme
+[krill-software/docs-theme](https://github.com/krill-software/docs-theme)
+(`_layouts/app.html`), pinned by tag in `docs/_config.yml`:
 
-1. **`nav.top`** with brand `krill / <slug>` (or `krill / <product>`).
-2. **`header.hero`** — eyebrow, serif h1 with one italic accent,
-   serif lede, AppImage + .deb download buttons pointing at the
-   current release, meta line (`vX.Y.Z · Linux x86_64 · Free & open source`).
-3. **`.preview-frame`** — a static mock of the live UI (a slice that
-   shows what the app actually looks like). Keep it hand-rolled HTML,
-   no screenshots — they get stale, hi-DPI is a pain, and the locked
-   palette makes mocks easy.
-4. **`section#features`** — 6 tagged features (`.tag` + `h3` + `p`).
-5. **`section#principles`** — 4 borderleft-accent principles
-   summarizing what the app *isn't*.
-6. **`section#install`** — copy on the left, `.install-box` on the
-   right with shell commands for AppImage and `.deb` install paths.
-7. **`footer`** — © krill · MIT line, GitHub + issues links.
+```yaml
+remote_theme: krill-software/docs-theme@v4.3
+plugins:
+  - jekyll-remote-theme
+
+title: Pixel Editor     # productName — drives artifact filenames
+slug: pixel-editor
+brand: pixel-editor     # nav brand: krill / <brand>
+version: 0.1.0          # bumped by the release workflow, don't hand-edit
+```
+
+`docs/index.html` is front matter + the **inner content of the preview
+mock** only. The theme supplies nav, hero (fixed "Linux native"
+eyebrow, app name as H1), download buttons, features grid, principles,
+install, build-from-source, and footer. Front matter the theme reads:
+
+- `tagline`, `description`, `og_description` — `<title>` / meta.
+- `lede` — the hero paragraph.
+- `features_heading` + `features:` (six `tag` / `title` / `blurb`).
+- `mock:` — `filename`, `dirty`, `state` for document-layout apps
+  (theme draws the titlebar + status line); `chrome: app` for
+  app-layout apps (no titlebar / status; the body supplies its own
+  top bars and window controls).
+- optional `keybindings:` (`action` / `keys`) and `install_note`.
+
+Keys not in that list (`eyebrow`, `heading`) are ignored — don't add them.
+
+**The preview mock** is hand-rolled HTML in the page body with its own
+small `<style>`. No screenshots — they get stale, and the locked
+palette makes mocks easy. Rules for the mock:
+
+- Use the chrome tokens (`--bg`, `--ink`, `--muted`, `--accent`,
+  `--rule`, `--rule-strong`) for anything that is *chrome*. For
+  ink-alpha tints use `rgba(var(--ink-rgb), 0.04)`, never a literal
+  `rgba(48, 52, 63, …)` — the literal doesn't flip in dark mode.
+  Inside SVG, put colors in `style=""`, not presentation attributes
+  (those can't take `var()`).
+- Hardcoded colors are fine for *content* the app displays — a photo,
+  a paint canvas, a color wheel, status dots — same rule as the apps.
+- Keep the frame around 400–500px tall. If the real UI is taller,
+  clip it (`height` + `overflow: hidden`) at a row boundary rather
+  than shrinking everything.
+- Match the running app: same tabs, same labels, same readout format.
+  Diff against the app's `src/` when in doubt.
+
+Check both modes before pushing — the theme links
+`krill-software.github.io/chrome.css`, which carries the dark tokens.
 
 **Version bumping is automatic.** The shared `krill-app-release.yml`
-workflow runs a `Bump docs/index.html` step on every tag push that
-sed-updates the hero `<strong>v…</strong>`, the `/v…/` path segment in
-download URLs, and the `_X.Y.Z_amd64` version segment in artifact
-filenames, then commits the result to `main` as a `github-actions[bot]`
-commit. Don't hand-bump those strings — they'll be overwritten on the
-next release anyway. The bot also rewrites the `ASSET_PREFIX` (from
-`productName` with spaces → dots) so productName renames propagate.
+workflow bumps `version:` in `docs/_config.yml` on every tag push and
+commits it to `main` as a `github-actions[bot]` commit. Don't hand-bump.
 
 ## Components
 
@@ -207,15 +237,14 @@ Mono 13px, muted color. Two columns: copyright on the left, contextual links on 
 
 ## Canonical starter
 
-`krill-software.github.io/index.html` is the reference implementation. New app pages should diff against it, change the hero text and the feature blocks, and keep everything else identical.
+`krill-software.github.io/index.html` is the reference implementation
+for the org page. For an **app page**, copy `docs/_config.yml` +
+`docs/index.html` from the most recent polished app of the same layout
+kind — [pixel-editor](https://github.com/krill-software/pixel-editor/blob/main/docs/index.html)
+or [files](https://github.com/krill-software/files/blob/main/docs/index.html)
+for app-layout mocks, [text-editor](https://github.com/krill-software/text-editor/blob/main/docs/index.html)
+for document-layout ones — and rewrite the front matter + mock.
 
-For the **app page** specifically, use the most recent polished app as your
-template — currently any of
-[text-editor](https://github.com/krill-software/text-editor/blob/main/docs/index.html),
-[image-editor](https://github.com/krill-software/image-editor/blob/main/docs/index.html),
-or [markdown-editor](https://github.com/krill-software/markdown-editor/blob/main/docs/index.html).
-Do **not** copy from the older 60-line single-screen template
-(csv-editor / pdf-reader still have that one — those are stragglers
-to be upgraded, not patterns to mirror).
-
-When the canonical changes (e.g. tagline updates, new section pattern), update the org page first and the apps' `docs/index.html` next in a single sweep — drift between pages is more visible on the web than on the desktop.
+When the theme changes, bump the pin in every app's `_config.yml` in a
+single sweep — drift between pages is more visible on the web than on
+the desktop.

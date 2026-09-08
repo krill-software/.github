@@ -15,5 +15,20 @@ For an existing app, when the user asks to release a new version:
 
 The script and workflow do _not_ touch git on their own. Tagging and pushing are deliberate operations.
 
+## First release of an app
+
+A tag alone doesn't put the app on the web. Before (or right after)
+the first `v0.1.0`, also:
+
+1. Create the GitHub repo (`gh repo create krill-software/<slug> --public --source .`)
+   and make sure `<slug>` is in the `APPS` map of `scripts/render-icons.py`
+   in this repo — the release workflow's icon step fails without it.
+2. Ship `docs/_config.yml` + `docs/index.html` (see [WEB-STYLE.md](../WEB-STYLE.md))
+   and enable GitHub Pages from `main` / `/docs`:
+   `gh api -X POST repos/krill-software/<slug>/pages -f 'source[branch]=main' -f 'source[path]=/docs'`.
+3. Add the app's card to the org site grid
+   ([krill-software.github.io](https://github.com/krill-software/krill-software.github.io)).
+4. Remove the app from the proof-of-concept list in CLAUDE.md.
+
 Don't release a [proof-of-concept app](../CLAUDE.md) — check the skip-list in
 CLAUDE.md before a "release all apps" sweep.
