@@ -34,6 +34,7 @@ APPS = {
     "paint":           "brush",
     "pixel-editor":    "grid-2x2",
     "screenshots":     "camera",
+    "files":           "folder-open",
 }
 
 def fetch_svg(name):
