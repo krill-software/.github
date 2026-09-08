@@ -34,6 +34,7 @@ APPS = {
     "paint":           "brush",
     "pixel-editor":    "grid-2x2",
     "screenshots":     "camera",
+    "todo":            "check-square",
     "files":           "folder-open",
 }
 
