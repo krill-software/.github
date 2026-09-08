@@ -1,6 +1,6 @@
 # Working in krill-software
 
-This directory is a collection of small native Linux apps under the **krill** umbrella. Each app is its own crate / project (`markdown-editor`, `image-editor`, `color-editor`).
+This directory is a collection of small native Linux apps under the **krill** umbrella. Each app is its own crate / project (`markdown-editor`, `image-editor`, `palette-editor`).
 
 Before scaffolding a new app or making non-trivial changes to an existing one, read:
 

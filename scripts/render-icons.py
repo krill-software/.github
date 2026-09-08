@@ -22,7 +22,7 @@ APPS = {
     "markdown-editor": "file-pen-line",
     "markdown-reader": "book-open",
     "rss-reader":      "rss",
-    "color-editor":    "palette",
+    "palette-editor":  "palette",
     "pdf-reader":      "file-text",
     "csv-editor":      "table",
     "text-editor":     "notepad-text",
