@@ -2,7 +2,7 @@
 """Generate krill app icons: a white Lucide glyph on a circular pink background."""
 from PIL import Image, ImageDraw
 from pathlib import Path
-import subprocess, sys, urllib.request, tempfile
+import re, subprocess, sys, urllib.request, tempfile
 
 # A krill icon is one Lucide glyph in Ghost White, centered on a solid
 # circle of Shimmering Blush. The circle fills the tile edge-to-edge;
@@ -41,6 +41,29 @@ APPS = {
 def fetch_svg(name):
     url = f"https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/{name}.svg"
     return urllib.request.urlopen(url).read().decode()
+
+_NUM = r"[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?"
+_ARC = re.compile(rf"\s*,?\s*({_NUM})\s*,?\s*({_NUM})\s*,?\s*({_NUM})\s*,?\s*([01])\s*,?\s*([01])\s*,?\s*({_NUM})\s*,?\s*({_NUM})")
+
+def _spell_out_arcs(d):
+    # Lucide minifies arc flags ("a2 2 0 0022 17" = flags 0 0, then x=22).
+    # That is valid SVG, but ImageMagick 6 can't tokenise it and the render
+    # fails. Rewrite every arc with one space between all seven arguments.
+    out = []
+    for cmd, args in re.findall(r"([a-zA-Z])([^a-zA-Z]*)", d):
+        if cmd in "aA":
+            arcs, pos = [], 0
+            while (m := _ARC.match(args, pos)):
+                arcs.append(" ".join(m.groups()))
+                pos = m.end()
+            if arcs and not args[pos:].strip():
+                args = " ".join(arcs)
+        out.append(cmd + args)
+    return "".join(out)
+
+def expand_paths(svg):
+    return re.sub(r'(\sd=")([^"]*)(")',
+                  lambda m: m.group(1) + _spell_out_arcs(m.group(2)) + m.group(3), svg)
 
 def recolor(svg):
     # bake Ghost White stroke so the glyph reads on the pink circle
@@ -82,7 +105,7 @@ def render_one(slug, out_dir):
     if not glyph:
         raise SystemExit(f"unknown slug {slug!r} — add it to APPS in this script")
     print(f"{slug:18s} -> lucide:{glyph}")
-    svg = recolor(fetch_svg(glyph))
+    svg = expand_paths(recolor(fetch_svg(glyph)))
     master = make_master(svg)
     export(master, out_dir)
 
